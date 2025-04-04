@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from keras.models import load_model
+import keras
 import yfinance as yf
 
 st.title("Stock Price Predictor")
@@ -11,12 +11,11 @@ from datetime import datetime
 end = datetime.now()
 start = datetime(end.year-20, end.month, end.day)
 google_data = yf.download(stock, start, end)
-model = load_model("Latest_stockprice_model.keras")
+model = keras.models.load_model("Latest_stockprice_model.keras")
 st.subheader("Stock Data")
 st.write(google_data)
 splittinglen=int(len(google_data)*0.7)
 xtest=pd.DataFrame(google_data.Close[splittinglen:])
-
 def plotgraph(figsize, values, fulldata, extra_dataset=None):
     fig = plt.figure(figsize=figsize)
     plt.plot(values,'Orange')
@@ -42,7 +41,7 @@ st.pyplot(plotgraph((15,6),google_data['MA_for_100_days'],google_data,0))
 
 from sklearn.preprocessing import MinMaxScaler
 scaler = MinMaxScaler(feature_range=(0,1))
-scaleddata= scaler.fit_transform(xtest[['Close']])
+scaleddata= scaler.fit_transform(xtest)
 
 xdata = []
 ydata = []
@@ -67,7 +66,7 @@ st.subheader("Original values vs Predicted values")
 st.write(ploting_data)
 
 st.subheader("Original Close price vs Predicted Close price")
-fig = plt.figure(figsize=(8,6))
+fig = plt.figure(figsize=(10,6))
 plt.plot(pd.concat([google_data.Close[:splittinglen+100],ploting_data],axis=0))
 plt.legend(["Data- not used", "Original Test Data", "Predicted Test Data"])
 st.pyplot(fig)
